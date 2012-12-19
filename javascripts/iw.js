@@ -9,6 +9,16 @@
 
 */
 
+/* Metadata channels should include:
+
+width
+height
+description
+batch
+nextUpdate
+
+*/
+
 (function ($) { //Execute in a closed scope
 
 
@@ -18,14 +28,18 @@ $.support.cors = true;
 window.Weather = {};
 var w = window.Weather
 
+//Single {vars} are replaced with un-encoded value. Use in URLs
+//Double {{vars}} are replaced with URL-encoded contents. Use in querystrings.
 w.defaults = {
 
   imagesNotFoundPath: "http://placehold.it/{width}x{height}&text=No%20images%20found",
+
+  metadataErrorPath:"http://placehold.it/{width}x{height}&text={{textStatus}}:{{errorThrown}}",
   //Path templates
   metaPath: "http://s3-us-west-1.amazonaws.com/iw-metadata/channels/{channel}.js",/*
   metaPath: "http://d3bpvv0bm6k5s7.cloudfront.net/channels/{channel}.js",*//*
-  imagePath: "http://d1gpvpc65ikqye.cloudfront.net/c/{channel}/{image}.jpg",*/
-  imagePath: "http://server-1.apphb.com/c/{channel}/{image}.jpg",
+  imagePath: "http://d1gpvpc65ikqye.cloudfront.net/c/{channel}/{id}.jpg",*/
+  imagePath: "http://server-1.apphb.com/c/{channel}/{id}.jpg",
   //If a channel doesn't have a standard sequence length, use this value
   defaultSequenceLength: 12,
   //check for updates every 60 seconds 
@@ -37,22 +51,25 @@ w.defaults = {
   poll:false,
   stillQuery: { time:"{{time}}" },
   seriesQuery: {  quality:80, },
-  query: {width:640, height:480, mode:"max"},
+  localQuery: {},
+  query: { mode:"max"},
   cycle: {
-    loader: true, //true - wait for 2 frames, "wait" to Wait for all frames
+    loader: "wait", // "wait" to Wait for all frames and display in-order
     fx: "fadeout",
     speed: 100,
     timeout: 500
   },
-  fullWidth: 640,
-  fullheight:480,
-};
+  maxWidth: 1024,
+  maxHeight: 768,
+  defaultWidth: 640,
+  defaultHeight: 480,
+  defaultPreviewWidth: 400,
+  defaultPreviewHeight: 300,
+  //maxPreviewWidth: 400,
+  //maxPreviewHeight: 300,
+  //expand:false
+  //series:false
 
-//Builds an image URL (sans schema) with the given channel ID, image ID, and options struct
-w.buildImageUrl = function(channel, image, options, metadata){
-  var o = $.extend(true, {},w.defaults,options,{channel:channel,image:image},metadata);
-
-  return w.resolveVars( w.addQuery(o.imagePath, o.query),o);
 };
 
 w.modUrl = function(imageMeta, query1, query2, query3,query4){
@@ -79,12 +96,39 @@ w.addQuery = function(url, query){
 
   return url + "?" + w.stringifyQuery(query);
 };
+w.toRelativeTime = function (milliseconds){
+    var secs = Math.abs(milliseconds / 1000);
+    var days = Math.floor(secs / (3600 * 24));
+    secs %= 3600 * 24;
+    var hrs = Math.floor( secs / 3600 );
+    secs %= 3600;
+    var mns = Math.floor( secs / 60 );
+    secs %= 60;
 
+    return (days > 0 ? days + " day" : "") + (days > 1 ? "s " : " ") + 
+           (hrs > 0 ? hrs + " hour" : "") + (hrs > 1 ? "s " : " ") + 
+           (mns > 0 ? mns + " minute" : "") + (mns > 1 ? "s " : " ") + 
+           (milliseconds < 0 ? " ago" : " from now")
+     
+};
+
+w.toShortRelativeTime = function (milliseconds){
+    var secs = Math.abs(milliseconds / 1000);
+    var hrs = Math.floor( secs / 3600 );
+    secs %= 3600;
+    var mns = Math.floor( secs / 60 );
+
+    return (milliseconds > 0 ? "+" : "-") + 
+           (hrs > 0 ? hrs + ":" : "0:") + 
+           (mns > 10 ? "" : "0") + mns;
+           
+};
 
 //Required parameters: channel, callback(results,options-copy), (optional) count
 
 w.getImagesAsync = function(options){
   var o = $.extend(true,{},w.defaults,options);
+  //The only variable supported in metadata URLs is {channel}
   o.metaPath = w.resolveVars(o.metaPath, {channel:o.channel});
 
   o.pollSuccess = function(data){
@@ -97,19 +141,26 @@ w.getImagesAsync = function(options){
       if (data.images[i] == undefined) break; 
 
       //For batch groups, we should never pull from a previous batch. 
-      if (data.lastSequence && data.sequenceLength &&
+      if ((data.batch || data.batch === undefined) && data.lastSequence && data.sequenceLength &&
         i < data.lastSequence - data.sequenceLength) break;
 
       //Skip dropped images
       if (!data.images[i].drop) {
-        //Add a 'url' property to the existing metadata
-        results.push($.extend(
-          {},
-          data.images[i],
-          { image: i, 
-            channel: this.channel,
-            url: w.buildImageUrl(this.channel,i,this,data.images[i])}
-        ));
+
+        //Add id, channel, [width], and [height] to metadata
+        var meta = {id:i, channel:this.channel}
+        if (data.width) meta.width = data.width;
+        if (data.height) meta.height = data.height;
+        if (data.description) meta.description = data.description;
+
+        //Allow existing metadata to override our values
+        $.extend(true,meta,data.images[i]);
+
+        //Build URL - support variables from metadata AND settings
+        meta.url = w.resolveVars( w.addQuery(this.imagePath, this.query),
+            $.extend(true, {},this,meta));
+
+        results.push(meta);
       }
       i--;
     }
@@ -128,8 +179,13 @@ w.getImagesAsync = function(options){
     }
     //If there were changes, fire callback
     if (!identical && this.callback){
-      this.callback(this.results,this)
+      this.callback(this.results,data, this)
     }
+    //Schedule next poll
+    this.schedulePoll();
+  };
+
+  o.schedulePoll = function(){
     //Schedule next poll
     if (this.poll && ((new Date() - this.startedPoll) / 1000 < this.pollDuration)){
       var closure = this;
@@ -139,6 +195,13 @@ w.getImagesAsync = function(options){
     }
   };
 
+  o.pollError = function(jqXHR, textStatus, errorThrown){
+    if (!this.results && this.errorCallback){
+      this.errorCallback(jqXHR, textStatus, errorThrown);
+    }
+    this.schedulePoll();
+  };
+
   o.beginPoll = function(){
     this.startedPoll = new Date();
     $.ajax({
@@ -146,6 +209,9 @@ w.getImagesAsync = function(options){
         dataType: 'json',
         success: function(data){
             o.pollSuccess(data);
+        },
+        error: function(jqXHR, textStatus, errorThrown){
+          o.pollError(jqXHR, textStatus, errorThrown);
         },
         cache:false
     });
@@ -164,8 +230,10 @@ $.fn.Weather = function(options){
     var api = {};
 
     var pq = {};
-    if (div.width() > 0) pq.width  = div.width();
-    if (div.height() > 0) pq.height  = div.height();
+    if (div.height() > 0){
+      pq.height  = div.height();
+      if (div.width() > 0) pq.width  = div.width();
+    } 
 
     var fromE = {};
     fromE.localQuery = pq;
@@ -175,7 +243,17 @@ $.fn.Weather = function(options){
 
     api.options = $.extend(true,{},w.defaults,fromE,options);
 
-    api.options.callback = function(results, opts){
+    api.options.errorCallback = function(jqXHR, textStatus, errorThrown){
+        //Fallback image
+        var fb = api.options.metadataErrorPath;
+        fb  =w.resolveVars(fb,{width:api.options.localQuery.width,
+                              height: api.options.localQuery.height, textStatus:textStatus,
+                              errorThrown:errorThrown});
+
+        div.append($("<img />").attr('src',fb));
+    };
+
+    api.options.callback = function(results, json, opts){
       //Destroy the existing slideshow
       if (api.content) api.content.cycle('destroy');
       delete api.content;
@@ -196,13 +274,36 @@ $.fn.Weather = function(options){
       }
 
       var anchor = null;
+
+      var width = Math.min(api.options.maxWidth || Number.MAX_VALUE,
+            api.options.width || 
+            (api.options.expand || !api.options.series ? null : api.options.localQuery.width)
+            || results[0].width || api.options.defaultWidth);
+      var height = Math.min(api.options.maxHeight || Number.MAX_VALUE,
+            api.options.height || 
+            (api.options.expand || !api.options.series ? null : api.options.localQuery.height)
+            || results[0].height || api.options.defaultHeight);
+
+
+
       //We need a preview image for both popup series, popup stills, and linked stills.
       if (api.options.expand || !api.options.series){
+
+        var previewWidth = Math.min(api.options.maxPreviewWidth || Number.MAX_VALUE,
+            api.options.previewWidth ||  api.options.localQuery.width ||
+            results[0].width || api.options.defaultPreviewWidth);
+
+        var previewHeight = Math.min(api.options.maxPreviewHeight || Number.MAX_VALUE,
+            api.options.previewHeight ||  api.options.localQuery.height ||
+            results[0].height || api.options.defaultPreviewHeight);
+
         //Build preview image in case we need it later
         var previewImg = $("<img />").attr('src',
-          w.modUrl(last, api.options.stillQuery, api.options.localQuery));
+          w.modUrl(last, api.options.stillQuery, api.options.localQuery, 
+            {width:previewWidth,height:previewHeight} 
+            ));
         
-        anchor = $("<a />").attr('href', w.modUrl(last,api.options.stillQuery))
+        anchor = $("<a />").attr('href', w.modUrl(last,api.options.stillQuery, {width:width,height:height}))
         anchor.append(previewImg).appendTo(div);
 
       }
@@ -212,13 +313,28 @@ $.fn.Weather = function(options){
         //build the series
         var content = $("<div />");
         api.content = content;
-        //content.css("width","640px");
+        content.css("width", width);
+        content.css("height", height);
+
         content.append("<div class=\"cycle-pager\"></div>");
+        content.append("<div class=\"cycle-overlay\"></div>");
 
         for (var i =0; i < results.length; i++){
           var c = results[i];
-          var ci = $("<img />").attr('src',w.modUrl(c,api.options.seriesQuery)).appendTo(content);
-          if (i != 0) ci.addClass("delay-display");
+          var ci = $("<img />").attr('src',
+            w.modUrl(c,api.options.seriesQuery,{width:width,height:height}))
+            .appendTo(content);
+
+          var relTime = w.toShortRelativeTime(new Date(c.time) - Date.now());
+
+          var longRelTime = w.toRelativeTime(new Date(c.time) - Date.now());
+
+          ci.data("cycle-pager-template","<a href='#'>" + relTime + "</a>");
+
+          ci.data("cycle-title",  longRelTime );
+          ci.data("cycle-description",  c.description || api.options.description || "" );
+
+          ci.addClass("delay-display");
         }
         if (!api.options.expand) {
           content.appendTo(div);
@@ -232,7 +348,7 @@ $.fn.Weather = function(options){
       if (api.options.expand){
 
         var seriesOpts = {inline:true,
-                       preload:false,
+                          preload:false,
             href:function(){
                 return anchor.data('content');
             },
@@ -244,7 +360,8 @@ $.fn.Weather = function(options){
               $(this).data('content', $(this).data('content-backup').clone(true));
             } 
         };
-        anchor.colorbox(api.options.series ? seriesOpts : null);
+        anchor.colorbox($.extend({width:width,height:height},
+            api.options.series ? seriesOpts : {}));
       }
 
     };
@@ -288,14 +405,6 @@ $(function(){
   $('.iw').Weather({channel: location.hash ? location.hash.substr(1) : null});
 });
 
-
-    //Polling methods
-    //$('obj').ImageStudio('api').getStatus({'restoreSuspendedCommands':true, 'removeEditingConstraints':true, 'useEditingServer':false} ) returns { url, path, query };
-    //$('obj').ImageStudio('api').setOptions({height:600});
-    //$('obj').ImageStudio('api').setOptions({url:'newimageurl.jpg'}); //Yes, you can switch images like this.. as long as you're not in the middle of cropping. That's not supported yet.
-    //$('obj').ImageStudio('api').getOptions();
-    //$('obj').ImageStudio('api').destroy();
-    //labels and icon values cannot be updated after initialization. 
 
 
 

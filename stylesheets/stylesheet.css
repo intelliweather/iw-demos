@@ -17,12 +17,20 @@
 /* pager */
 .cycle-pager { 
     text-align: center; width: 100%; z-index: 500; position: absolute; top: 10px; 
+
 }
-.cycle-pager span { 
-    font-family: arial; font-size: 50px; width: 16px; height: 16px; 
-    display: inline-block; color: #ddd; cursor: pointer; 
+.cycle-pager a { 
+    font-family: Tahoma; font-size: 9px; margin-left:3px; 
+    display: inline-block; color: gray; cursor: pointer; text-decoration:none;
+
+    border-radius: 5px;
+    background: rgb(0,0,0);
+    /* RGBa with 0.6 opacity */
+    background: rgba(0,0,0, 0.5);
+    padding:5px;
+    padding-right:6px;
 }
-.cycle-pager span.cycle-pager-active { color: #D69746;}
+.cycle-pager a.cycle-pager-active { color: white;}
 .cycle-pager > * { cursor: pointer;}
 
 
