@@ -57,7 +57,7 @@ w.defaults = {
     loader: "wait", // "wait" to Wait for all frames and display in-order
     fx: "fadeout",
     speed: 100,
-    timeout: 500
+    timeout: 300
   },
   maxWidth: 1024,
   maxHeight: 768,
@@ -332,7 +332,7 @@ $.fn.Weather = function(options){
           ci.data("cycle-pager-template","<a href='#'>" + relTime + "</a>");
 
           ci.data("cycle-title",  longRelTime );
-          ci.data("cycle-description",  c.description || api.options.description || "" );
+          ci.data("cycle-desc",  c.description || api.options.description || "" );
 
           ci.addClass("delay-display");
         }
@@ -360,7 +360,7 @@ $.fn.Weather = function(options){
               $(this).data('content', $(this).data('content-backup').clone(true));
             } 
         };
-        anchor.colorbox($.extend({width:width,height:height},
+        anchor.colorbox($.extend({scrolling:false, innerWidth:width,innerHeight:height},
             api.options.series ? seriesOpts : {}));
       }
 
