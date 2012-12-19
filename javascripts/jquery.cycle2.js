@@ -1000,7 +1000,7 @@ $(document).on( 'cycle-bootstrap', function( e, opts ) {
         }
 
         function sorter(a, b) {
-            return a.data('index') > b.data('index');
+            return a.data('index') - b.data('index');
         }
     }
 });
