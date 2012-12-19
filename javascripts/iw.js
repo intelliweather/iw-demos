@@ -37,9 +37,9 @@ w.defaults = {
   metadataErrorPath:"http://placehold.it/{width}x{height}&text={{textStatus}}:{{errorThrown}}",
   //Path templates
   metaPath: "http://s3-us-west-1.amazonaws.com/iw-metadata/channels/{channel}.js",/*
-  metaPath: "http://d3bpvv0bm6k5s7.cloudfront.net/channels/{channel}.js",*//*
-  imagePath: "http://d1gpvpc65ikqye.cloudfront.net/c/{channel}/{id}.jpg",*/
-  imagePath: "http://server-1.apphb.com/c/{channel}/{id}.jpg",
+  metaPath: "http://d3bpvv0bm6k5s7.cloudfront.net/channels/{channel}.js",*/
+  imagePath: "http://d1gpvpc65ikqye.cloudfront.net/c/{channel}/{id}.jpg",/*
+  imagePath: "http://server-1.apphb.com/c/{channel}/{id}.jpg",*/
   //If a channel doesn't have a standard sequence length, use this value
   defaultSequenceLength: 12,
   //check for updates every 60 seconds 
