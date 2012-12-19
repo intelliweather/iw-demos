@@ -36,7 +36,16 @@ w.defaults = {
   //Disable polling by default
   poll:false,
   stillQuery: { time:"{{time}}" },
-  seriesQuery: { quality:80, }
+  seriesQuery: {  quality:80, },
+  query: {width:640, height:480, mode:"max"},
+  cycle: {
+    loader: true, //true - wait for 2 frames, "wait" to Wait for all frames
+    fx: "fadeout",
+    speed: 100,
+    timeout: 500
+  },
+  fullWidth: 640,
+  fullheight:480,
 };
 
 //Builds an image URL (sans schema) with the given channel ID, image ID, and options struct
@@ -64,7 +73,7 @@ w.addQuery = function(url, query){
   if (!query) return url;
   var c = url.indexOf('?');
   if (!(c < 0 && url.indexOf('=') < 0)){
-    query = $.extend(true,{},w.parseQuery(url.substr(c+ 1),query));
+    query = $.extend(true,{},w.parseQuery(url.substr(c + 1)),query);
     url = url.substr(0,c);
   }
 
@@ -203,27 +212,39 @@ $.fn.Weather = function(options){
         //build the series
         var content = $("<div />");
         api.content = content;
-        content.data("cycle-loader","wait"); //Wait for all frames
-        content.data("cycle-fx", "fadeout");
-        content.data("cycle-speed", "100");
-        content.data("cycle-timeout", "500");
-
+        //content.css("width","640px");
+        content.append("<div class=\"cycle-pager\"></div>");
 
         for (var i =0; i < results.length; i++){
           var c = results[i];
-          $("<img />").attr('src',w.modUrl(c,api.options.seriesQuery)).appendTo(content);
+          var ci = $("<img />").attr('src',w.modUrl(c,api.options.seriesQuery)).appendTo(content);
+          if (i != 0) ci.addClass("delay-display");
         }
-        if (!api.options.expand) content.appendTo(div);
-        else anchor.data('content',content);
+        if (!api.options.expand) {
+          content.appendTo(div);
+          content.cycle($.extend(true,{},api.options.cycle));
+        }
+        else {
+          anchor.data('content',content);
+          anchor.data('content-backup',content.clone());
+        }
       }
       if (api.options.expand){
-        anchor.colorbox(api.options.series ? 
-            {inline:true, preload:false, href:content,
+
+        var seriesOpts = {inline:true,
+                       preload:false,
+            href:function(){
+                return anchor.data('content');
+            },
             onComplete: function(){
-               $(this).data('content').cycle();
-            }
+              $(this).data('content').cycle($.extend(true,{},api.options.cycle));
+            },
+            onCleanup: function(){
+              $(this).data('content').cycle('destroy');
+              $(this).data('content', $(this).data('content-backup').clone(true));
             } 
-            : null);
+        };
+        anchor.colorbox(api.options.series ? seriesOpts : null);
       }
 
     };
@@ -264,7 +285,7 @@ $.fn.Weather = function(options){
 
 
 $(function(){
-  $('.iw').Weather();
+  $('.iw').Weather({channel: location.hash ? location.hash.substr(1) : null});
 });
 
 

@@ -138,9 +138,10 @@ $.fn.cycle.API = {
                 }
             );
         }
-
+        log("hi");
         // stage initial transition
         if ( opts.timeout ) {
+            log("First slide will start in " , (opts.timeout + opts.delay) , "ms");
             opts.timeoutId = setTimeout(function() {
                 opts.API.prepareTx( false, !opts.reverse );
             }, opts.timeout + opts.delay);

@@ -9,42 +9,32 @@
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/colorbox.css">
 
 
-    <title>Iw-demos</title>
+    <title>IW Demos</title>
   </head>
 
   <body>
-
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/intelliweather/iw-demos">View on GitHub</a>
-
-          <h1 id="project_title">Iw-demos</h1>
-          <h2 id="project_tagline"></h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/intelliweather/iw-demos/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/intelliweather/iw-demos/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
 
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h3>Demos</h3>
+        <p>This demo page is for development, and does not take advantage of cloudfront caching.</p>
+        
+        <p>To change the channel, add #1 to the URL, and reload the page. Channel 1 will be displayed instead. All graphics are resized to 640x480 here</p>
 
+        <h4>In-page popup</h4>
         <div class="iw expand" data-iw-channel=5 style="width:300px;height:300px">
         </div>
-
+        <h4>Standard popup</h4>
         <div class="iw" data-iw-channel=5 style="width:300px;height:300px">
         </div>
-
+        <h4>In-page animation popup</h4>
         <div class="iw expand series" data-iw-channel=5 style="width:300px;height:300px">
         </div>
-
+        <h4>Inline animation</h4>
         <div class="iw series" data-iw-channel=5>
         </div>
+
 
 
 
@@ -52,8 +42,8 @@
     </div>
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-    <script src="javascripts/jquery.cycle2.min.js"></script>
-    <script src="javascripts/jquery.colorbox-min.js"></script>
+    <script src="javascripts/jquery.cycle2.js"></script>
+    <script src="javascripts/jquery.colorbox.js"></script>
     <script src="javascripts/underscore-min.js"></script>
     <script src="javascripts/iw.js"></script>
   </body>
