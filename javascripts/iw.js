@@ -351,7 +351,7 @@ $.fn.Weather = function(options){
             elem.cycle(elem.hasClass("cycle-paused") ? 'resume' : 'pause');
           };
 
-          elem.on('click','img, .pauseplay, .cycle-overlay',toggleState);
+          elem.on('mousedown','img, .pauseplay, .cycle-overlay',toggleState);
 
         };
 
