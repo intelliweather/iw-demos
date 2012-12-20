@@ -56,8 +56,8 @@ w.defaults = {
   cycle: {
     loader: "wait", // "wait" to Wait for all frames and display in-order
     fx: "fadeout",
-    speed: 100,
-    timeout: 300
+    speed: 300,
+    timeout: 1
   },
   maxWidth: 1024,
   maxHeight: 768,
@@ -315,9 +315,14 @@ $.fn.Weather = function(options){
         api.content = content;
         content.css("width", width);
         content.css("height", height);
+        content.addClass("iw-series-cycle2");
+
+        content.append("<a class=\"pauseplay\"></a>");
+
 
         content.append("<div class=\"cycle-pager\"></div>");
         content.append("<div class=\"cycle-overlay\"></div>");
+
 
         for (var i =0; i < results.length; i++){
           var c = results[i];
@@ -336,32 +341,52 @@ $.fn.Weather = function(options){
 
           ci.addClass("delay-display");
         }
+        var configCycle = function(elem){
+          var pb = elem.find('.pauseplay');
+          elem.on('cycle-pager-activated',function(){
+            elem.cycle('pause');
+          });
+
+          var toggleState = function(){
+            elem.cycle(elem.hasClass("cycle-paused") ? 'resume' : 'pause');
+          };
+
+          elem.on('click','img, .pauseplay, .cycle-overlay',toggleState);
+
+        };
+
         if (!api.options.expand) {
           content.appendTo(div);
           content.cycle($.extend(true,{},api.options.cycle));
+          configCycle(content);
         }
         else {
+
+
+          anchor.data('colorbox-options', {inline:true,
+                            preload:false,
+              href:function(){
+                  return anchor.data('content');
+              },
+              onComplete: function(){
+                $(this).data('content').cycle($.extend(true,{},api.options.cycle));
+                configCycle($(this).data('content'));
+              },
+              onCleanup: function(){
+                $(this).data('content').cycle('destroy');
+                $(this).data('content', $(this).data('content-backup').clone(true));
+              } 
+          });
+
           anchor.data('content',content);
-          anchor.data('content-backup',content.clone());
+          anchor.data('content-backup',content.clone(true));
         }
+
+
       }
       if (api.options.expand){
-
-        var seriesOpts = {inline:true,
-                          preload:false,
-            href:function(){
-                return anchor.data('content');
-            },
-            onComplete: function(){
-              $(this).data('content').cycle($.extend(true,{},api.options.cycle));
-            },
-            onCleanup: function(){
-              $(this).data('content').cycle('destroy');
-              $(this).data('content', $(this).data('content-backup').clone(true));
-            } 
-        };
         anchor.colorbox($.extend({scrolling:false, innerWidth:width,innerHeight:height},
-            api.options.series ? seriesOpts : {}));
+            anchor.data('colorbox-options') ? anchor.data('colorbox-options') : {}));
       }
 
     };
