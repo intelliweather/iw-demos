@@ -18,7 +18,7 @@
 
 
  .iw-topbar{
-    font-family: "Century Gothic"; Tahoma;
+    font-family: "Century Gothic", Tahoma;
     width: 100%; z-index: 500; position: absolute; top: 0px;
 
     padding:8px;
