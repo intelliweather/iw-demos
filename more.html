@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html>
+
   <head>
     <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/icons/fontawesome.css">
+
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-    <title>IW Basic Demos</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/colorbox.css">
+
+
+    <title>IW Demos</title>
   </head>
 
   <body>
+
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
@@ -17,8 +24,11 @@
         
         <p>To change the channel, add #1 to the URL, and reload the page. Channel 1 will be displayed instead. All graphics are resized to 640x480 here</p>
 
+        <h4>In-page popup</h4>
+        <div class="iw expand" data-iw-channel=5 style="width:300px;height:300px" data-final-query="width=1024&amp;height=800">
+        </div>
 
-        <h4>Inline series</h4>
+        <h4>Inline animation</h4>
         <div class="iw series" data-iw-channel=5>
         </div>
 
@@ -28,6 +38,7 @@
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="javascripts/jquery.cycle2.min.js"></script>
+    <script src="javascripts/jquery.colorbox.js"></script>
     <script src="javascripts/underscore-min.js"></script>
     <script src="javascripts/moment.min.js"></script>
     <script src="javascripts/iw.js"></script>

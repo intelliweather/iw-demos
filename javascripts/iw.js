@@ -49,8 +49,8 @@ w.defaults = {
   pollDuration: 60 * 10, 
   //Disable polling by default
   poll:false,
-  stillQuery: { time:"{{time}}" },
-  seriesQuery: {  quality:80, },
+  stillQuery: { time:"{{time}}", watermark:"key-radar,logo-iw"  },
+  seriesQuery: {  quality:80, watermark:"key-radar,logo-iw" },
   localQuery: {},
   query: { mode:"max"},
   cycle: {
@@ -122,6 +122,10 @@ w.toShortRelativeTime = function (milliseconds){
            (hrs > 0 ? hrs + ":" : "0:") + 
            (mns > 10 ? "" : "0") + mns;
            
+};
+
+w.toLocalDateTime = function(dt){
+  return moment(dt).format("M/D/YY h:mm A")
 };
 
 //Required parameters: channel, callback(results,options-copy), (optional) count
@@ -317,42 +321,74 @@ $.fn.Weather = function(options){
         content.css("height", height);
         content.addClass("iw-series-cycle2");
 
-        content.append("<a class=\"pauseplay\"></a>");
+
+        var topbar = $("<div class=\"iw-topbar delay-display\"></div>");
+
+        var seriesTitle = $("<span class=\"iw-title\" />").appendTo(topbar);
+        var labelTime = $("<span class=\"iw-time\" />").appendTo(topbar);
+
+        
+        var controls = $("<div class=\"iw-controls\"></div>");
+        controls.append("<span class=\"iw-prev icon-backward icon-2x\" />");
+        controls.append("<span class=\"iw-pauseplay icon-play icon-2x\" />");
+        controls.append("<span class=\"iw-next icon-forward icon-2x\" />");
 
 
-        content.append("<div class=\"cycle-pager\"></div>");
-        content.append("<div class=\"cycle-overlay\"></div>");
+
+        content.append(topbar);
+        topbar.append(controls);
+
+        var slideCount = results.length;
+
+        var updateView = function(event, optionHash, slideOptionsHash, currentSlideEl){
+          var s = $(currentSlideEl);
+
+          var dateUtc = s.data('cycle-date');
+          
+          seriesTitle.text((c.description || api.options.description || "") + 
+            " - " + w.toRelativeTime(dateUtc - Date.now()) + 
+            " - " + (s.data('index') + 1) + " of " + slideCount + "" );
+
+          labelTime.text(w.toLocalDateTime(dateUtc));
+          
+          topbar.removeClass("delay-display");
+        };
 
 
         for (var i =0; i < results.length; i++){
           var c = results[i];
           var ci = $("<img />").attr('src',
             w.modUrl(c,api.options.seriesQuery,{width:width,height:height}))
-            .appendTo(content);
-
-          var relTime = w.toShortRelativeTime(new Date(c.time) - Date.now());
-
-          var longRelTime = w.toRelativeTime(new Date(c.time) - Date.now());
-
-          ci.data("cycle-pager-template","<a href='#'>" + relTime + "</a>");
-
-          ci.data("cycle-title",  longRelTime );
-          ci.data("cycle-desc",  c.description || api.options.description || "" );
-
-          ci.addClass("delay-display");
+            .addClass("delay-display").appendTo(content);
+          ci.data('index',i);
+          ci.data('cycle-date', new Date(c.time));
         }
         var configCycle = function(elem){
-          var pb = elem.find('.pauseplay');
+          //Pause if a pager is clicked
           elem.on('cycle-pager-activated',function(){
             elem.cycle('pause');
           });
 
+          //Toggle pause/play on canvas click or pauseplay click
           var toggleState = function(){
             elem.cycle(elem.hasClass("cycle-paused") ? 'resume' : 'pause');
           };
+          elem.on('mousedown','img, .iw-pauseplay, .pauseplay, .cycle-overlay',toggleState);
 
-          elem.on('mousedown','img, .pauseplay, .cycle-overlay',toggleState);
+          //Add an view update handler for info display
+          elem.on("cycle-update-view",updateView);
 
+          //Add previous button logic
+          elem.find(".iw-prev").click(function(){
+            elem.cycle('pause');
+            elem.cycle('prev');
+          });
+
+          //Add next button logic
+          elem.find(".iw-next").click(function(){
+            elem.cycle('pause');
+            elem.cycle('next');
+          });
         };
 
         if (!api.options.expand) {
@@ -427,7 +463,7 @@ $.fn.Weather = function(options){
 
 
 $(function(){
-  $('.iw').Weather({channel: location.hash ? location.hash.substr(1) : null});
+  $('.iw').Weather({channel: location.hash ? location.hash.substr(1) : "5"});
 });
 
 
