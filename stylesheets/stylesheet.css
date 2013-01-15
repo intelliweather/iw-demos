@@ -19,16 +19,18 @@
 
 
  .iw-topbar{
-    font-family: "Century Gothic", "Helvetica Neue", Helvetica, Arial;
+    font-family: "Tahoma", "Century Gothic", "Helvetica Neue", Helvetica, Arial;
+    font-size: 80%;
+    font-weight: bold;
+
     width: 100%; z-index: 500; position: absolute; top: 0px;
 
     padding:8px;
     padding-bottom:0px;
     color:white;
 
-    text-shadow: -1px 1px 6px #000, 1px -1px 6px #000;
-    font-weight:normal;
-    font-size:inherit;
+    text-shadow: -1px 1px 5px #000, 1px -1px 5px #000;
+
  }
 
  .iw-time{
@@ -36,11 +38,14 @@
     top:8px;
     right:8px;
  }
+
+ .iw-frame-index:before       { content: " - "; }
+
  .iw-frame-index{
-    position:absolute;
+   /* position:absolute;
     top:30px;
     right:8px;
-    font-size:8pt;
+    font-size:8pt;*/
  }
 
  .iw-subtitle{
