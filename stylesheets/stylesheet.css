@@ -26,11 +26,25 @@
     padding-bottom:0px;
     color:white;
 
-    text-shadow: -1px 1px 6px #222, 1px -1px 6px #222;
+    text-shadow: -1px 1px 6px #000, 1px -1px 6px #000;
+    font-weight:normal;
+    font-size:inherit;
  }
 
  .iw-time{
-    float:right;
+    position:absolute;
+    top:8px;
+    right:8px;
+ }
+ .iw-frame-index{
+    position:absolute;
+    top:30px;
+    right:8px;
+    font-size:8pt;
+ }
+
+ .iw-subtitle{
+    font-size:0.9em;
  }
 
 .iw-controls{

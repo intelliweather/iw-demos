@@ -48,7 +48,7 @@ w.defaults = {
   //Stop polling after 10 minutes
   pollDuration: 60 * 10, 
   //Disable polling by default
-  poll:false,
+  poll:true,
   stillQuery: { time:"{{time}}", watermark:"key-radar,logo-iw"  },
   seriesQuery: {  quality:80, watermark:"key-radar,logo-iw" },
   localQuery: {},
@@ -127,7 +127,7 @@ w.toShortRelativeTime = function (milliseconds){
 };
 
 w.toLocalDateTime = function(dt){
-  return moment(dt).format("M/D/YY h:mm A")
+  return moment(dt).format("M/DD/YY hh:mm A")
 };
 
 //Required parameters: channel, callback(results,options-copy), (optional) count
@@ -327,8 +327,9 @@ $.fn.Weather = function(options){
         var topbar = $("<div class=\"iw-topbar delay-display\"></div>");
 
         var seriesTitle = $("<span class=\"iw-title\" />").appendTo(topbar);
+        var subTitle = $("<span class=\"iw-subtitle\" />").appendTo(topbar);
         var labelTime = $("<span class=\"iw-time\" />").appendTo(topbar);
-
+        var labelFrame = $("<span class=\"iw-frame-index\" />").appendTo(topbar); 
         
         var controls = $("<div class=\"iw-controls\"></div>");
         controls.append("<span class=\"iw-prev icon-backward icon-2x\" />");
@@ -347,9 +348,10 @@ $.fn.Weather = function(options){
 
           var dateUtc = s.data('cycle-date');
           
-          seriesTitle.text((c.description || api.options.description || "") + 
-            " - " + w.toRelativeTime(dateUtc - Date.now()) + 
-            " - " + (s.data('index') + 1) + " of " + slideCount + "" );
+          seriesTitle.text(c.description || api.options.description || "");
+
+          subTitle.text( " - " + w.toRelativeTime(dateUtc - Date.now()));
+          labelFrame.text((s.data('index') + 1) + " of " + slideCount + "" );
 
           labelTime.text(w.toLocalDateTime(dateUtc));
 
