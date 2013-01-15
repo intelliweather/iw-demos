@@ -14,11 +14,12 @@
 
  .iw-series-cycle2, .cycle-slideshow {
     background: url(images/spinner.gif) 50% 50% no-repeat;
+    /*max-width:100%;*/
  }
 
 
  .iw-topbar{
-    font-family: "Century Gothic", Tahoma;
+    font-family: "Century Gothic", "Helvetica Neue", Helvetica, Arial;
     width: 100%; z-index: 500; position: absolute; top: 0px;
 
     padding:8px;
@@ -68,10 +69,11 @@
     some style overrides to make things more pleasant on mobild devices
 */
 
-@media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
-    .cycle-slideshow { width: 200px;}
-    .cycle-overlay { padding: 4px }
-    .cycle-caption { bottom: 4px; right: 4px }
+@media only screen and (max-width: 640px), only screen and (max-device-width: 640px) {
+    .iw-series-cycle2{
+       /* width:100%;*/
+    }
+
 }
 
 
