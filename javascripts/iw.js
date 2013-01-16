@@ -114,6 +114,11 @@ w.toRelativeTime = function (milliseconds){
      
 };
 
+w.padZeroes = function(str){
+   str = str.toString()
+   while (str.length < 2) str = "0" + str;
+   return str;
+}
 w.toAbbRelativeTime = function (milliseconds){
     var secs = Math.abs(milliseconds / 1000);
     var days = Math.floor(secs / (3600 * 24));
@@ -123,9 +128,9 @@ w.toAbbRelativeTime = function (milliseconds){
     var mns = Math.floor( secs / 60 );
     secs %= 60;
 
-    return (days > 0 ? days + " d " : " ") +  
-           (hrs > 0 ? hrs + " h " : " ") + 
-           (mns > 0 ? mns + " m " : " ") + 
+    return w.padZeroes(days) + "d " + 
+            w.padZeroes(hrs) + "h " + 
+            w.padZeroes(mns) + "m" + 
            (milliseconds < 0 ? " ago" : " from now");
      
 };
@@ -145,7 +150,7 @@ w.toShortRelativeTime = function (milliseconds){
 };
 
 w.toLocalDateTime = function(dt){
-  return moment(dt).format("M/DD/YY hh:mm A")
+  return moment(dt).format("MM/DD/YY hh:mm A")
 };
 
 //Required parameters: channel, callback(results,options-copy), (optional) count
@@ -369,7 +374,7 @@ $.fn.Weather = function(options){
           seriesTitle.text(c.description || api.options.description || "");
 
           subTitle.text( " - " + w.toAbbRelativeTime(dateUtc - Date.now()));
-          labelFrame.text((s.data('index') + 1) + " of " + slideCount + "" );
+          labelFrame.text(w.padZeroes(s.data('index') + 1) + " of " + slideCount + "" );
 
           labelTime.text(w.toLocalDateTime(dateUtc));
 
