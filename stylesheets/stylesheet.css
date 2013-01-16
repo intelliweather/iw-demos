@@ -49,12 +49,13 @@
  }
 
  .iw-subtitle{
-    font-size:0.9em;
+    /*font-size:0.9em;*/
  }
 
 .iw-controls{
     padding-top:8px;
     text-align:center;
+    font-size:16px;
 
     text-shadow:
      2px 2px 6px black;
