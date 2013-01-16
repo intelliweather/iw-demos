@@ -20,7 +20,7 @@
 
  .iw-topbar{
     font-family: "Tahoma", "Century Gothic", "Helvetica Neue", Helvetica, Arial;
-    font-size: 80%;
+    font-size: 12px;
     font-weight: bold;
 
     width: 100%; z-index: 500; position: absolute; top: 0px;
@@ -57,7 +57,7 @@
     text-align:center;
 
     text-shadow:
-     2px 2px 8px gray;
+     2px 2px 6px black;
 }
 
 .iw-pauseplay, .iw-prev, .iw-next{
