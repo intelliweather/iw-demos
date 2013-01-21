@@ -66,7 +66,7 @@ w.defaults = {
   defaultWidth: 640,
   defaultHeight: 480,
   defaultPreviewWidth: 400,
-  defaultPreviewHeight: 300,
+  defaultPreviewHeight: 300
   //maxPreviewWidth: 400,
   //maxPreviewHeight: 300,
   //expand:false
@@ -149,9 +149,6 @@ w.toShortRelativeTime = function (milliseconds){
            
 };
 
-w.toLocalDateTime = function(dt){
-  return moment(dt).format("MM/DD/YY hh:mm A")
-};
 
 //Required parameters: channel, callback(results,options-copy), (optional) count
 
@@ -162,7 +159,8 @@ w.getImagesAsync = function(options){
 
   o.pollSuccess = function(data){
     var results = [];
-    var last = data.lastSequence || data.last;
+    var batch = data.batch == true;
+    var last = batch ? data.lastSequence : data.last;
     var count = this.count || data.sequenceLength || o.defaultSequenceLength;
     var i = last;
     while (results.length < count){
@@ -170,7 +168,7 @@ w.getImagesAsync = function(options){
       if (data.images[i] == undefined) break; 
 
       //For batch groups, we should never pull from a previous batch. 
-      if ((data.batch || data.batch === undefined) && data.lastSequence && data.sequenceLength &&
+      if (batch && data.lastSequence && data.sequenceLength &&
         i < data.lastSequence - data.sequenceLength) break;
 
       //Skip dropped images
@@ -279,6 +277,7 @@ $.fn.Weather = function(options){
                               height: api.options.localQuery.height, textStatus:textStatus,
                               errorThrown:errorThrown});
 
+        if (console) console.log(textStatus + "\n" + errorThrown);
         div.append($("<img />").attr('src',fb));
     };
 
@@ -376,7 +375,7 @@ $.fn.Weather = function(options){
           subTitle.text( " - " + w.toAbbRelativeTime(dateUtc - Date.now()));
           labelFrame.text(w.padZeroes(s.data('index') + 1) + " of " + slideCount + "" );
 
-          labelTime.text(w.toLocalDateTime(dateUtc));
+          labelTime.html(moment(dateUtc).format("MM/DD/YY -- HH:mm").replace("--","&nbsp;"));
 
           topbar.removeClass("delay-display");
         };
