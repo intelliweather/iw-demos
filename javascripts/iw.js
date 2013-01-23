@@ -491,10 +491,6 @@ $.fn.Weather = function(options){
 })(jQuery);
 
 
-$(function(){
-  $('.iw').Weather({channel: location.hash ? location.hash.substr(1) : "5"});
-});
-
 
 
 

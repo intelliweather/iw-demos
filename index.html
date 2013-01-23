@@ -35,5 +35,12 @@
     <script src="javascripts/underscore-min.js"></script>
     <script src="javascripts/moment.min.js"></script>
     <script src="javascripts/iw.js"></script>
+    <script type="text/javascript">
+    //<!--
+    $(function(){
+      $('.iw').Weather({channel: location.hash ? location.hash.substr(1) : "5"});
+    });
+    //-->
+    </script>
   </body>
 </html>

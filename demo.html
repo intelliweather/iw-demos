@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/icons/fontawesome.css">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/colorbox.css">
+
+
+    <title>IW Demos</title>
+  </head>
+
+  <body>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h3>Demos</h3>
+        
+        <h4>In-page popup</h4>
+        <div class="iw expand">
+        </div>
+
+        <h4>Inline animation</h4>
+        <div class="iw series">
+        </div>
+
+        <h4>In-page still popup</h4>
+        <div class="iw still">
+        </div>
+
+
+      </section>
+    </div>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="javascripts/jquery.cycle2.min.js"></script>
+    <script src="javascripts/jquery.colorbox.js"></script>
+    <script src="javascripts/underscore-min.js"></script>
+    <script src="javascripts/moment.min.js"></script>
+    <script src="javascripts/iw.js"></script>
+    <script type="text/javascript">
+    //<!--
+    /*  channel: 5
+      expand:false
+      series:false
+
+      imagesNotFoundPath: "http://placehold.it/{width}x{height}&text=No%20images%20found",
+      metadataErrorPath:"http://placehold.it/{width}x{height}&text={{textStatus}}:{{errorThrown}}",
+      metaPath: "http://s3-us-west-1.amazonaws.com/iw-metadata/channels/{channel}.js",
+      imagePath: "http://d1gpvpc65ikqye.cloudfront.net/c/{channel}/{id}.jpg",
+
+      //If a channel doesn't have a standard sequence length, use this value
+      defaultSequenceLength: 12,
+      //check for updates every 60 seconds 
+      //(CloudFront has 30-sec caching, so worst-case 1:30 delay, avg 45s)
+      pollInterval: 60, 
+      //Stop polling after 10 minutes
+      pollDuration: 60 * 10, 
+
+      poll:true,
+
+      stillQuery: { time:"{{time}}", watermark:"key-radar,logo-iw"  },
+      seriesQuery: {  quality:80, watermark:"key-radar,logo-iw" },
+      localQuery: {},
+      query: { mode:"max"},
+      cycle: {
+        loader: "wait", // "wait" to Wait for all frames and display in-order
+        fx: "fadeout",
+        speed: 300,
+        timeout: 1,
+        lastTimeout:1500,
+        firstTimeout:750
+      },
+      maxWidth: 1024,
+      maxHeight: 768,
+      defaultWidth: 640,
+      defaultHeight: 480,
+      defaultPreviewWidth: 400,
+      defaultPreviewHeight: 300
+    */
+    $(function(){
+      $('.iw.expand').Weather({channel: "5",expand:true, series:true,localQuery: {width:320,height:240 }} );
+      $('.iw.series').Weather({channel: "5",expand:false, series:true} );
+      $('.iw.still').Weather({channel: "5", expand:true, series:false, localQuery: {width:320,height:240 }} );
+    });
+    //-->
+    </script>
+  </body>
+</html>
